@@ -17,7 +17,7 @@ status:{
 },
 
 createdBy:{
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required:[true, 'please provide user']
 }

@@ -1,0 +1,36 @@
+<h1>All Jobs</h1>
+
+<% if (messages.success) { %>
+  <div class="alert alert-success">
+    <%= messages.success %>
+  </div>
+<% } %>
+
+<% if (messages.error) { %>
+  <div class="alert alert-danger">
+    <%= messages.error %>
+  </div>
+<% } %>
+
+<table>
+  <tr>
+    <th>Title</th>
+    <th>Description</th>
+    <th>Salary</th>
+    <th>Actions</th>
+  </tr>
+
+  <% jobs.forEach(job => { %>
+    <tr>
+      <td><%= job.title %></td>
+      <td><%= job.description %></td>
+      <td><%= job.salary %></td>
+      <td>
+        <a href="/jobs/edit/<%= job._id %>">Edit</a>
+        <a href="/jobs/delete/<%= job._id %>">Delete</a>
+      </td>
+    </tr>
+  <% }) %>
+</table>
+
+<a href="/jobs/add">Add New Job</a>
