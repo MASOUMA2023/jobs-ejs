@@ -1,0 +1,86 @@
+
+<h1 class="jobs-header">All Jobs</h1>
+
+<% if (messages && messages.success) { %>
+  <div class="alert alert-success">
+    <%= messages.success %>
+  </div>
+<% } %>
+
+<% if (messages && messages.error) { %>
+  <div class="alert alert-danger">
+    <%= messages.error %>
+  </div>
+<% } %>
+<style>
+  body {
+    background-color: lightblue;
+    font-family: Arial, sans-serif;
+  }
+  .jobs-header {
+    color: #007bff;
+    font-size: 2.5em;
+    text-align: center;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    
+  }
+  
+  table th, table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+  }
+
+  td {
+    background-color: #fff;
+  }
+  .actions button {
+    text-decoration: none;
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    margin: 0 5px;
+  }
+  .actions a:hover,
+  .actions button:hover {
+    background-color: #28a745;
+  }
+</style>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Company</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% jobs.forEach(job => { %>
+      <tr>
+        <td><%= job.position %></td>
+        <td><%= job.company %></td>
+        <td><%= job.status %></td>
+        <td class="actions">
+          <a  href="/jobs/edit/<%= job._id %>" class="btn btn-warning">Edit</a>
+          <form action="/jobs/delete/<%= job._id %>" method="POST" style="display:inline;">
+            <input type="hidden" name="_method" value="DELETE">
+            <button  type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<a href="/jobs/new" class="btn btn-primary">Add New Job</a>
