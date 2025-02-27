@@ -17,9 +17,9 @@ router.post("/", auth, jobsController.addJob);
 router.get("/edit/:id", auth, jobsController.editJobForm);
 
 // PUT /jobs/update/:id - Update a job
-router.put("/update/:id", auth, jobsController.updateJob);
+router.post("/update/:id", auth, jobsController.updateJob);
 
 // DELETE /jobs/delete/:id - Delete a job
-router.delete("/delete/:id", auth, jobsController.deleteJob);
+router.post("/delete/:id", auth, jobsController.deleteJob);
 
 module.exports = router;

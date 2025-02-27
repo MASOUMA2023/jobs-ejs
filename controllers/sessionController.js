@@ -6,6 +6,7 @@ const registerShow = (req, res) => {
 };
 
 const registerDo = async (req, res, next) => {
+  console.log(req.body)
   if (req.body.password !== req.body.password1) {
     req.flash("error", "The passwords entered do not match.");
     return res.render("register", { errors: req.flash("error") });
@@ -14,6 +15,7 @@ const registerDo = async (req, res, next) => {
   try {
     await User.create(req.body);
   } catch (e) {
+    console.log(e)
     if (e.constructor.name === "ValidationError") {
       parseValidationErr(e, req);
     } else if (e.name === "MongoServerError" && e.code === 11000) {

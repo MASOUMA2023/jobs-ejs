@@ -3,5 +3,5 @@ module.exports = (req, res, next) => {
     req.flash('error', 'You must be logged in to access this page');
     return res.redirect('/login'); // or wherever you want to redirect unauthenticated users
   }
-  next(); // Move to the next middleware or route
+  next(); 
 };

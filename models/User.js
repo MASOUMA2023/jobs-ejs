@@ -1,41 +1,29 @@
-const mongoose = require ('mongoose')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
 
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const { Schema } = mongoose;
 
-const UserSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required :[true, 'name required'],
-        minlength : 3,
-        maxlength: 50
-    },
-    email : {
-        type: String,
-        required :[true, 'Email required'],
-        unique: true,
-        match:[ /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/  , 'Email not formatted correctly ']
-    },
-    password:{
-        type: String,
-        required: [true, ' password required'],
-        minlength: 4,
-    }
-})
-//create user
-UserSchema.pre('save', async function(next) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt)
-    next();
-})
-//create jwt
-UserSchema.methods.createJWT = function (){
-    return jwt.sign({userId: this._id, name:this.name}, process.env.JWT_SECRET,{
-        expiresIn:process.env.JWT_LIFETIME,})
-}
-UserSchema.methods.comparePassword = async function(canditatePassword){
-    const isMatch = await bcrypt.compare(canditatePassword, this.password)
-    return isMatch
-}
+const userSchema = new Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
 
-module.exports = mongoose.model('User', UserSchema)
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// Compare passwords
+userSchema.methods.comparePassword = function(password) {
+  return bcrypt.compare(password, this.password);
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;

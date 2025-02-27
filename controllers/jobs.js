@@ -1,95 +1,94 @@
 
 const Job = require("../models/Job"); // Assume we have a Job model
-const parseValidationErr = require("../util/parseValidationErr"); // Utility to parse validation errors
+//const parseValidationErr = require("../util/parseValidationErr"); // Utility to parse validation errors
 
-// Controller to get all jobs
+// Controller functions for jobs
+
+// Show all jobs
 exports.getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find({ createdBy: req.user._id }); // Get jobs created by the logged-in user
-    res.render("jobs", { jobs });
+    const jobs = await Job.find();
+    res.render("jobs", { jobs, messages: req.flash() });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
+    req.flash("error", "Unable to fetch jobs");
+    res.redirect("/jobs");
   }
 };
 
-// Controller to show the form to create a new job
+// Show form to create a new job
 exports.createJobForm = (req, res) => {
-  res.render("job", { job: null }); // Passing null to indicate it's for adding a new job
+  res.render("newJob");
 };
 
-// Controller to add a new job
+// Add a new job
 exports.addJob = async (req, res) => {
+  
   try {
-    const { title, description } = req.body;
-
-    // Create a new job with data from the form
+    const { position,status,company} = req.body;
     const newJob = new Job({
-      title,
-      description,
-      createdBy: req.user._id, // Set the user who created the job
+      position,
+      status,
+      company,
+      createdBy: req.user._id, // Assuming you're tracking the user
     });
-
-    await newJob.save(); // Save job to the database
+    const nJob = await newJob
+  
+    nJob.save();
     req.flash("success", "Job added successfully");
-    res.redirect("/jobs"); // Redirect to the jobs list page
+    res.redirect("/jobs");
   } catch (err) {
-    const errors = parseValidationErr(err);
-    res.render("job", { errors, job: req.body });
+    req.flash("error", "Error adding job");
+    res.redirect("/jobs/new");
   }
 };
 
-// Controller to show the form to edit a job
+// Show form to edit a job
 exports.editJobForm = async (req, res) => {
   try {
-    const job = await Job.findOne({ _id: req.params.id, createdBy: req.user._id }); // Ensure user owns the job
+    const job = await Job.findById(req.params.id);
     if (!job) {
-      req.flash("error", "Job not found or you are not authorized to edit it.");
+      req.flash("error", "Job not found");
       return res.redirect("/jobs");
     }
-    res.render("job", { job });
+    res.render("editJob", { job });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
+    req.flash("error", "Error fetching job details");
+    res.redirect("/jobs");
   }
 };
 
-// Controller to update a job
+// Update a job
 exports.updateJob = async (req, res) => {
-  try {
-    const { title, description } = req.body;
-    const job = await Job.findOneAndUpdate(
-      { _id: req.params.id, createdBy: req.user._id }, // Ensure user owns the job
-      { title, description },
-      { new: true }
-    );
+  try {console.log('update')
+    const {position,company } = req.body;
+    const job = await Job.findById(req.params.id);
 
     if (!job) {
-      req.flash("error", "Job not found or you are not authorized to update it.");
+      req.flash("error", "Job not found");
       return res.redirect("/jobs");
     }
 
+    job.position = position;
+    job.company = company;
+   
+    await job.save();
     req.flash("success", "Job updated successfully");
     res.redirect("/jobs");
   } catch (err) {
-    const errors = parseValidationErr(err);
-    res.render("job", { errors, job: req.body });
+    req.flash("error", "Error updating job");
+    //res.redirect(`/jobs/edit/${req.params.id}`);
   }
 };
 
-// Controller to delete a job
+// Delete a job
 exports.deleteJob = async (req, res) => {
   try {
-    const job = await Job.findOneAndDelete({ _id: req.params.id, createdBy: req.user._id }); // Ensure user owns the job
-    if (!job) {
-      req.flash("error", "Job not found or you are not authorized to delete it.");
-      return res.redirect("/jobs");
-    }
-
+    await Job.findByIdAndDelete(req.params.id);
     req.flash("success", "Job deleted successfully");
     res.redirect("/jobs");
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
+    req.flash("error", "Error deleting job");
+    res.redirect("/jobs");
   }
 };
+
