@@ -38,6 +38,7 @@
 </style>
 <div class="edit-job-container">
 <form class="edit-job-form" action="/jobs/update/<%= job._id %>" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <div>
     <label for="position">Job Title</label>
     <input type="text" name="position" value="<%= job.position %>" required />

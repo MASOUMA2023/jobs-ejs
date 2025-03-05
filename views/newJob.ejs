@@ -28,6 +28,7 @@ p {
 }
 </style>
 <form class="new-job-form" action="/jobs" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <label for="position">Position:</label>
   <input type="text" name="position" required />
 

@@ -1,14 +1,19 @@
 
-const Job = require("../models/Job"); // Assume we have a Job model
+const Job = require("../models/Job"); 
 //const parseValidationErr = require("../util/parseValidationErr"); // Utility to parse validation errors
+const flash = require("connect-flash")
 
-// Controller functions for jobs
 
 // Show all jobs
 exports.getAllJobs = async (req, res) => {
   try {
     const jobs = await Job.find();
-    res.render("jobs", { jobs, messages: req.flash() });
+    res.render("jobs", { 
+      jobs, 
+      csrfToken: req.csrfToken(), 
+      user: req.user, 
+      messages: req.flash() 
+    });
   } catch (err) {
     req.flash("error", "Unable to fetch jobs");
     res.redirect("/jobs");
@@ -17,7 +22,7 @@ exports.getAllJobs = async (req, res) => {
 
 // Show form to create a new job
 exports.createJobForm = (req, res) => {
-  res.render("newJob");
+  res.render("newJob", { csrfToken: req.csrfToken() });
 };
 
 // Add a new job
@@ -50,7 +55,7 @@ exports.editJobForm = async (req, res) => {
       req.flash("error", "Job not found");
       return res.redirect("/jobs");
     }
-    res.render("editJob", { job });
+    res.render("editJob", { job, csrfToken: req.csrfToken() });
   } catch (err) {
     req.flash("error", "Error fetching job details");
     res.redirect("/jobs");
@@ -59,8 +64,8 @@ exports.editJobForm = async (req, res) => {
 
 // Update a job
 exports.updateJob = async (req, res) => {
-  try {console.log('update')
-    const {position,company } = req.body;
+  try {
+    const {position,company,status } = req.body;
     const job = await Job.findById(req.params.id);
 
     if (!job) {
@@ -70,25 +75,31 @@ exports.updateJob = async (req, res) => {
 
     job.position = position;
     job.company = company;
-   
+   job.status = status;
     await job.save();
     req.flash("success", "Job updated successfully");
     res.redirect("/jobs");
   } catch (err) {
     req.flash("error", "Error updating job");
-    //res.redirect(`/jobs/edit/${req.params.id}`);
+    res.redirect(`/jobs/edit/${req.params.id}`);
   }
 };
 
 // Delete a job
 exports.deleteJob = async (req, res) => {
   try {
-    await Job.findByIdAndDelete(req.params.id);
+    const job = await Job.findById(req.params.id);
+
+    if (!job) {
+      req.flash("error", "Job not found");
+      return res.redirect("/jobs");
+    }
+
+    await job.remove(); // Remove the job from the database
     req.flash("success", "Job deleted successfully");
-    res.redirect("/jobs");
-  } catch (err) {
+    res.redirect("/jobs"); // Redirect to the jobs list page
+  } catch (error) {
     req.flash("error", "Error deleting job");
-    res.redirect("/jobs");
+    res.redirect("/jobs"); // Redirect to the jobs list page
   }
 };
-
