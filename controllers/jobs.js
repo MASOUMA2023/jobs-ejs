@@ -87,6 +87,7 @@ exports.updateJob = async (req, res) => {
 
 // Delete a job
 exports.deleteJob = async (req, res) => {
+  console.log('delete route hit')
   try {
     const job = await Job.findById(req.params.id);
 
@@ -94,11 +95,12 @@ exports.deleteJob = async (req, res) => {
       req.flash("error", "Job not found");
       return res.redirect("/jobs");
     }
-
-    await job.remove(); // Remove the job from the database
+    console.log("Job found, deleting...");
+    await job.deleteOne(); // Remove the job from the database
     req.flash("success", "Job deleted successfully");
     res.redirect("/jobs"); // Redirect to the jobs list page
   } catch (error) {
+    console.log("Error deleting job:", error);
     req.flash("error", "Error deleting job");
     res.redirect("/jobs"); // Redirect to the jobs list page
   }

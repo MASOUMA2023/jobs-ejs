@@ -75,7 +75,6 @@
           <a  href="/jobs/edit/<%= job._id %>" class="btn btn-warning">Edit</a>
           <form action="/jobs/delete/<%= job._id %>" method="POST" style="display:inline;">
              <input type="hidden" name="_csrf" value="<%= csrfToken %>"> 
-            <input type="hidden" name="_method" value="DELETE">
             <button  type="submit" class="btn btn-danger">Delete</button>
           </form>
         </td>

@@ -41,7 +41,7 @@ const logonShow = (req, res) => {
   if (req.user) {
     return res.redirect("/");
   }
-  res.render("logon");
+  res.render("logon", {csrfToken: req.csrfToken()});
 };
 
 module.exports = {

@@ -61,14 +61,7 @@ const sessionParms = {
 };
 app.use(session(sessionParms));
 
-// CSRF middleware configuration for production and development
-const csrfProtection = csrf({
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",  // secure cookies in production
-  },
-});
-app.use(csrfProtection);
+
 
 // Flash messages setup
 const flash = require('connect-flash');
@@ -82,17 +75,28 @@ passportInit();
 app.use(passport.initialize());
 app.use(passport.session());
 // Middleware for storing locals (storeLocals should return a middleware)
-app.use(require("./middleware/storeLocals"));
+
+
+// CSRF middleware configuration for production and development
+const csrfProtection = csrf({
+  //  cookie: true
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production",  // secure cookies in production
+  // },
+});
+
+ app.use(csrfProtection);
+ app.use(require("./middleware/storeLocals"));
 
 // Define routes
-app.use("/jobs", auth, csrfProtection, jobsRouter);
+app.use("/jobs", auth, jobsRouter);
 app.get("/", (req, res) => {
   res.render("index");
 });
 app.use("/sessions", require("./routes/sessionRoutes"));
 
 
-app.get("/jobs", auth, csrfProtection, async (req, res) => {
+app.get("/jobs", auth,  async (req, res) => {
   try {
     const jobs = await Job.find();
     res.render("jobs", { 
@@ -108,7 +112,7 @@ app.get("/jobs", auth, csrfProtection, async (req, res) => {
 });
 
 // Route to get the job's data and render the edit page
-app.get("/jobs/edit/:id", auth,csrfProtection, async (req, res) => {
+app.get("/jobs/edit/:id", auth, async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
     if (!job) {
@@ -122,7 +126,7 @@ app.get("/jobs/edit/:id", auth,csrfProtection, async (req, res) => {
   }
 });
 // Route to handle updating the job's data
-app.post("/jobs/update/:id", auth,csrfProtection, async (req, res) => {
+app.post("/jobs/update/:id", auth, async (req, res) => {
   try {
     const { position, company, status } = req.body;
     const job = await Job.findById(req.params.id);
@@ -145,6 +149,23 @@ app.post("/jobs/update/:id", auth,csrfProtection, async (req, res) => {
     res.redirect(`/jobs/edit/${req.params.id}`);
   }
 });
+// Route to handle deleting the job's data
+// app.post("/jobs/delete/:id", auth, async (req, res) => {
+//   try {
+//     const job = await Job.findById(req.params.id);
+//     if (!job) {
+//       req.flash("error", "Job not found");
+//       return res.redirect("/jobs");
+//     }
+//     await job.remove();
+//     req.flash("success", "Job deleted successfully");
+//     res.redirect("/jobs"); // Redirect to the jobs list page
+//   } catch (error) {
+//     req.flash("error", "Error updating job");
+//     res.redirect(`/jobs/delete/${req.params.id}`);
+//   }
+// });
+
 // CSRF TOKEN route
 app.get('/form', (req, res) => {
   res.render('form', { csrfToken: req.csrfToken() });
@@ -187,9 +208,9 @@ app.use((req, res, next) => {
 });
 
 
-const methodOverride = require("method-override");
-// Use methodOverride to simulate DELETE and PUT requests
-app.use(methodOverride("_method"));
+// const methodOverride = require("method-override");
+// // Use methodOverride to simulate DELETE and PUT requests
+// app.use(methodOverride("_method"));
 
 
 //add API
