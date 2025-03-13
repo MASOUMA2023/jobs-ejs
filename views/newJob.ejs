@@ -1,0 +1,48 @@
+<h1 class="header">Create a New Job</h1>
+<style>
+body {
+  background-color: lightblue;
+  font-family: Arial, sans-serif;
+}
+header {
+  color: darkblue;
+  text-align: center;
+}
+p {
+  font-size: 16px;
+}
+.new-job-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.new-job-form label {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+.new-job-form button {
+  text-decoration: none;
+    background-color: #28a745;
+    color: white;
+  font-weight: bold;
+}
+</style>
+<form class="new-job-form" action="/jobs" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <label for="position">Position:</label>
+  <input type="text" name="position" required />
+
+  <label for="status">Status:</label>
+  <select name="status">
+  <option value="interview">Interview</option>
+  <option value="declined">Declined</option>
+  <option value="pending">Pending</option>
+  </select>
+
+  <label for="company">Company:</label>
+  <input type="text" name="company" required />
+
+  <button type="submit">Submit</button>
+</form>
+
+<a href="/jobs">Back to Job List</a>
